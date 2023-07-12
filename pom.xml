@@ -11,7 +11,7 @@
 	<groupId>com.example</groupId>
 	<artifactId>eprocurement-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>eprocurement-api</name>
+	<name>eProcurement-api</name>
 	<description>e procurement api</description>
 	<properties>
 		<java.version>17</java.version>

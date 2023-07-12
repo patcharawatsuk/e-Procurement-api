@@ -1,7 +1,9 @@
 package eprocurementapi.controller;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import eprocurementapi.exception.AuthenException;
 import eprocurementapi.exception.BaseException;
+import eprocurementapi.util.Constant;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
@@ -10,8 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.Date;
 
 @ControllerAdvice
 public class ErrorAdvisor {
@@ -37,7 +38,8 @@ public class ErrorAdvisor {
 
     @Data
     public class ErrorResponse {
-        private final LocalDateTime localDateTimeTH = LocalDateTime.now().atZone(ZoneId.of("Asia/Bangkok")).toLocalDateTime();
+        @JsonFormat(timezone = Constant.TimeZoneIds.ASIA_BANGKOK, pattern = Constant.DATETIME_FORMAT_ZONE)
+        private Date timestamp = new Date();
         private int status;
         private Object error;
         private String path;

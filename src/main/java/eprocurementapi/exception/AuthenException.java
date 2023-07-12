@@ -10,4 +10,8 @@ public class AuthenException extends Exception {
         return new AuthenException(msg);
     }
 
+    public static AuthenException emailTaken() {
+        return new AuthenException("Email has already registered");
+    }
+
 }
