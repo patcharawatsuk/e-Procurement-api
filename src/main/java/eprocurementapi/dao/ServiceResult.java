@@ -5,9 +5,7 @@ import eprocurementapi.util.Constant;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Data
 public class ServiceResult {

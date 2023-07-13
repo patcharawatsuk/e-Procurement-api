@@ -46,7 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api-docs/**",
             //#### others ####
             "/",
-            "/api/v1/auth/**",
+            "/api/auth/**",
             "/swagger-ui/**"
     );
 
@@ -62,26 +62,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (REQUEST_WHITELIST.stream().anyMatch(p -> pathMatcher.match(p, request.getServletPath()))) {
             filterChain.doFilter(request, response);
         } else {
-            if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, "Bearer ")) {
+            try {
+                if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, "Bearer ")) {
+                    handlerExceptionResolver.resolveException(request, response, null, new AuthenException("Unauthorized"));
+                    return;
+                }
+                jwt = authHeader.substring(7);
+                userEmail = jwtService.extractUserName(jwt);
+                if (StringUtils.isNotEmpty(userEmail)
+                        && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = userService.userDetailsService()
+                            .loadUserByUsername(userEmail);
+                    if (jwtService.isTokenValid(jwt, userDetails)) {
+                        SecurityContext context = SecurityContextHolder.createEmptyContext();
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities());
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        context.setAuthentication(authToken);
+                        SecurityContextHolder.setContext(context);
+                    }
+                }
+                filterChain.doFilter(request, response);
+            } catch (Exception ex) {
                 handlerExceptionResolver.resolveException(request, response, null, new AuthenException("Unauthorized"));
                 return;
             }
-            jwt = authHeader.substring(7);
-            userEmail = jwtService.extractUserName(jwt);
-            if (StringUtils.isNotEmpty(userEmail)
-                    && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userService.userDetailsService()
-                        .loadUserByUsername(userEmail);
-                if (jwtService.isTokenValid(jwt, userDetails)) {
-                    SecurityContext context = SecurityContextHolder.createEmptyContext();
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    context.setAuthentication(authToken);
-                    SecurityContextHolder.setContext(context);
-                }
-            }
-            filterChain.doFilter(request, response);
         }
     }
 }

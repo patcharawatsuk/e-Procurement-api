@@ -6,13 +6,14 @@ import eprocurementapi.exception.UnexpectedException;
 import eprocurementapi.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
 @CrossOrigin
+@RestController
 @RequestMapping("/api/order")
 public class OrderController {
     @Autowired
@@ -20,10 +21,10 @@ public class OrderController {
 
     @PostMapping("/create")
     public ResponseEntity<ServiceResult> createOrder(@Valid @RequestBody List<OrderRequest> orders) throws UnexpectedException {
-        return ResponseEntity.ok(orderService.createOrder(orders));
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(orders));
     }
 
-    @PostMapping("/")
+    @GetMapping
     public ResponseEntity<ServiceResult> getOrder() {
         return ResponseEntity.ok(orderService.getAllOrder());
     }

@@ -9,6 +9,7 @@ import eprocurementapi.repository.OrderRepository;
 import eprocurementapi.service.OrderService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class OrderServiceImpl implements OrderService {
             throw UnexpectedException.databaseFailHandling("save data fail: " + ex.getMessage());
         }
         ServiceResult serviceResult = new ServiceResult();
+        serviceResult.setStatus(HttpStatus.CREATED.value());
         serviceResult.createResponseData("order created");
         return serviceResult;
     }
