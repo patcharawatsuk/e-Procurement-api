@@ -14,5 +14,9 @@ public interface OrderService {
 
     ServiceResult getOrderDetail(int orderId) throws UnexpectedException;
 
-//    ServiceResult getAllApproval(String authHeader);
+    ServiceResult getAllApproval(String authHeader);
+
+    ServiceResult cancelOrder(String authHeader, int orderId, String message);
+
+    ServiceResult approveOrder(String authHeader, int orderId);
 }

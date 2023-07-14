@@ -1,17 +1,20 @@
 package eprocurementapi.service.impl;
 
+import eprocurementapi.entities.AppovalOrderInfo;
 import eprocurementapi.dao.ServiceResult;
 import eprocurementapi.dao.request.OrderRequest;
 import eprocurementapi.entities.*;
 import eprocurementapi.exception.UnexpectedException;
 import eprocurementapi.mapper.OrderMapper;
 import eprocurementapi.repository.*;
+import eprocurementapi.repository.custom.OrderRepositoryCustom;
 import eprocurementapi.service.JwtService;
 import eprocurementapi.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,10 +30,12 @@ public class OrderServiceImpl implements OrderService {
     private final ApproverRepository approverRepo;
     private final JwtService jwtService;
     private final UserRepository userRepo;
+    private final OrderRepositoryCustom orderRepoCustom;
 
     private final OrderMapper orderMapper = Mappers.getMapper(OrderMapper.class);
 
     @Override
+    @Transactional
     public ServiceResult createOrder(String authHeader, List<OrderRequest> request) throws UnexpectedException {
         String jwt = authHeader.substring(7);
         String email = jwtService.extractUserName(jwt);
@@ -55,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
             orderItemRepo.saveAll(_orderItems);
 
             //approval
-            double sum = _orderItems.stream().mapToDouble(item -> item.getPrice() * item.getQty() * 35).sum();
+            double sum = _orderItems.stream().mapToDouble(item -> item.getPrice() * item.getQty()).sum();
             if (sum <= 50000) {
                 createApprovalLine(1, orderSave, ApproverLevel.LEVEL1, 1);
             } else if (sum > 50000 && sum < 200000) {
@@ -95,6 +100,7 @@ public class OrderServiceImpl implements OrderService {
         return serviceResult;
     }
 
+    @Transactional
     public void createApprovalLine(int step, Order orderSave, ApproverLevel level, int current) throws UnexpectedException {
         OrderApprovalPK orderApprovalPK = new OrderApprovalPK();
         orderApprovalPK.setOrderId(orderSave.getId());
@@ -115,22 +121,68 @@ public class OrderServiceImpl implements OrderService {
     public ServiceResult getAllOrder(String authHeader) {
         String jwt = authHeader.substring(7);
         String email = jwtService.extractUserName(jwt);
-        List<Order> allOrder = orderRepo.findByRequester(email);
+        List<Order> allOrder = orderRepo.findByRequesterOrderByIdAsc(email);
         ServiceResult serviceResult = new ServiceResult();
         serviceResult.createResponseData(allOrder);
         return serviceResult;
     }
 
-//    Override
-//    public ServiceResult getAllApproval(String authHeader) {
-//        String jwt = authHeader.substring(7);
-//        String email = jwtService.extractUserName(jwt);
-//        orderApprovalRepo.
-//        List<Order> allOrder = orderRepo.findByRequester(email);
-//        ServiceResult serviceResult = new ServiceResult();
-//        serviceResult.createResponseData(allOrder);
-//        return serviceResult;
-//    }
+    @Override
+    public ServiceResult getAllApproval(String authHeader) {
+        String jwt = authHeader.substring(7);
+        String email = jwtService.extractUserName(jwt);
+        List<OrderApproval> orderApproval = orderApprovalRepo.findByApproverAndCurrentEquals(email, 1);
+        List<Integer> ordersId = orderApproval.stream().map(e -> e.getId().getOrderId()).collect(Collectors.toList());
+        List<AppovalOrderInfo> appovalOrderInfo = orderRepoCustom.findAppovalOrderInfo(ordersId, email);
+        ServiceResult serviceResult = new ServiceResult();
+        serviceResult.createResponseData(appovalOrderInfo);
+        return serviceResult;
+    }
+
+    @Override
+    @Transactional
+    public ServiceResult approveOrder(String authHeader, int orderId) {
+        String jwt = authHeader.substring(7);
+        String email = jwtService.extractUserName(jwt);
+        OrderApproval _approval = orderApprovalRepo.findByApproverAndIdOrderIdAndCurrentEquals(email, orderId, 1);
+        _approval.setCurrent(9);
+
+
+        Optional<OrderApproval> _nextApprovalOpt = orderApprovalRepo.findByIdOrderIdAndIdStep(orderId, _approval.getId().getStep() + 1);
+        if (_nextApprovalOpt.isPresent()) {
+            OrderApproval _nextApproval = _nextApprovalOpt.get();
+            _nextApproval.setCurrent(1);
+            orderApprovalRepo.save(_nextApproval);
+        } else {
+            Order order = orderRepo.findById(orderId).get();
+            order.setCancel(-9);
+            order.setComment("order is approved successfully");
+        }
+        orderApprovalRepo.save(_approval);
+        ServiceResult serviceResult = new ServiceResult();
+        serviceResult.createResponseData("approved order");
+        return serviceResult;
+    }
+    @Override
+    @Transactional
+    public ServiceResult cancelOrder(String authHeader, int orderId, String message) {
+        String jwt = authHeader.substring(7);
+        String email = jwtService.extractUserName(jwt);
+        List<OrderApproval> byIdOrderId = orderApprovalRepo.findByIdOrderId(orderId);
+        List<OrderApproval> updateOrderStatus = byIdOrderId.stream().map(e -> {
+            e.setCurrent(-9);
+            return e;
+        }).collect(Collectors.toList());
+        orderApprovalRepo.saveAll(updateOrderStatus);
+        ServiceResult serviceResult = new ServiceResult();
+        serviceResult.createResponseData("order canceled");
+
+        Order order = orderRepo.findById(orderId).get();
+        order.setComment(String.format("Calceled By: %s", email));
+        order.setCancel(1);
+        orderRepo.save(order);
+        return serviceResult;
+    }
 
     @Override
     public ServiceResult getOrderDetail(int orderId) throws UnexpectedException {

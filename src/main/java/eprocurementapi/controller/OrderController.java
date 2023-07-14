@@ -35,8 +35,19 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderDetail(orderId));
     }
 
-//    @GetMapping("/approval")
-//    public ResponseEntity<ServiceResult> getAllApproval(@RequestHeader("Authorization") String authHeader) {
-//        return ResponseEntity.ok(orderService.getAllApproval(authHeader));
-//    }
+    @GetMapping("/approval")
+    public ResponseEntity<ServiceResult> getAllApproval(@RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(orderService.getAllApproval(authHeader));
+    }
+
+    @PutMapping("/cancel")
+    public ResponseEntity<ServiceResult> cancelOrder(@RequestHeader("Authorization") String authHeader, @RequestParam("id") int orderId, @RequestBody String message) {
+        return ResponseEntity.ok(orderService.cancelOrder(authHeader, orderId, message));
+    }
+
+    @PutMapping("/approve")
+    public ResponseEntity<ServiceResult> approveOrder(@RequestHeader("Authorization") String authHeader, @RequestParam("id") int orderId) {
+        return ResponseEntity.ok(orderService.approveOrder(authHeader, orderId));
+    }
+
 }

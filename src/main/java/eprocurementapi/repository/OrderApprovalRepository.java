@@ -13,4 +13,11 @@ import java.util.Optional;
 public interface OrderApprovalRepository extends JpaRepository<OrderApproval, OrderApprovalPK> {
     @Query(value = " SELECT e.step FROM _order_approval e where e.order_id = :orderId ORDER BY e.step desc limit 1 ", nativeQuery = true)
     Integer findLastApproveStep(int orderId);
+
+    List<OrderApproval> findByApproverAndCurrentEquals(String approver, int current);
+    List<OrderApproval> findByIdOrderId(int orderId);
+
+    OrderApproval findByApproverAndIdOrderIdAndCurrentEquals(String approver, int orderId, int current);
+
+    Optional<OrderApproval> findByIdOrderIdAndIdStep(int orderId, int step);
 }

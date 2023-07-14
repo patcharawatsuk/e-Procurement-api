@@ -19,4 +19,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String requester;
+    @Column(name = "comment", length = 1000)
+    private String comment;
+    private Integer cancel;
 }
