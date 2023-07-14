@@ -76,6 +76,16 @@ public class ErrorAdvisor {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleValidationException(IllegalArgumentException ex, HttpServletRequest request, HttpServletResponse response) {
+        int httpStatus = HttpStatus.CONFLICT.value();
+        ErrorResponse res = new ErrorResponse();
+        res.setError(ex.getMessage());
+        res.setStatus(httpStatus);
+        res.setPath(request.getServletPath());
+        return ResponseEntity.status(httpStatus).body(res);
+    }
+
     @Data
     public class ErrorResponse {
         @JsonFormat(timezone = Constant.TimeZoneIds.ASIA_BANGKOK, pattern = Constant.DATETIME_FORMAT_ZONE)

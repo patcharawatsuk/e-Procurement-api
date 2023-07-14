@@ -14,6 +14,9 @@ public class OrderRequest {
     @NotNull(message = "productId is required.")
     private int productId;
 
+    @NotNull(message = "productName is required.")
+    private String productName;
+
     @NotNull(message = "qty is required.")
     private Double qty;
 

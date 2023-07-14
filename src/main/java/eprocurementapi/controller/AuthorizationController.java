@@ -2,6 +2,7 @@ package eprocurementapi.controller;
 
 import eprocurementapi.dao.ServiceResult;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/resource")
 public class AuthorizationController {
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<ServiceResult> accessResource() {
         ServiceResult serviceResult = new ServiceResult();
         serviceResult.setStatus(HttpStatus.OK.value());

@@ -1,7 +1,7 @@
 package eprocurementapi.mapper;
 
 import eprocurementapi.dao.request.OrderRequest;
-import eprocurementapi.entities.Order;
+import eprocurementapi.entities.OrderItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueMappingStrategy;
@@ -16,13 +16,15 @@ import java.util.List;
 )
 public interface OrderMapper {
 
-    @Mapping(source = "productId", target = "productId")
+    @Mapping(source = "productId", target = "id.productId")
     @Mapping(source = "qty", target = "qty")
     @Mapping(source = "price", target = "price")
-    Order toOrderEntity(OrderRequest order);
+    @Mapping(source = "productName", target = "productName")
+    OrderItem toOrderItemEntity(OrderRequest order);
 
-    @Mapping(source = "productId", target = "productId")
+    @Mapping(source = "productId", target = "id.productId")
     @Mapping(source = "qty", target = "qty")
     @Mapping(source = "price", target = "price")
-    List<Order> toOrderEntities(List<OrderRequest> order);
+    @Mapping(source = "productName", target = "productName")
+    List<OrderItem> toOrderItemEntities(List<OrderRequest> orderItem);
 }

@@ -10,6 +10,7 @@ import eprocurementapi.service.AuthenticationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -25,7 +26,7 @@ public class AuthenticationController {
     @Autowired
     private AuthenticationService authenticationService;
 
-    @PostMapping("/signup")
+    @PostMapping(value = "/signup", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<ServiceResult> signup(@Valid @RequestBody SignUpRequest request, BindingResult bindingResult) throws AuthenException {
         try {
             if (bindingResult.hasErrors()) {
@@ -55,12 +56,12 @@ public class AuthenticationController {
         return false;
     }
 
-    @PostMapping("/signin")
+    @PostMapping(value = "/signin", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<ServiceResult> signin(@RequestBody SigninRequest request) throws AuthenException {
         return ResponseEntity.ok(authenticationService.signin(request));
     }
 
-    @GetMapping("/refresh-token")
+    @GetMapping(value = "/refresh-token", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<ServiceResult> refreshToken(@RequestHeader("Authorization") String authHeader) throws AuthenException {
         return ResponseEntity.ok(authenticationService.refreshToken(authHeader));
     }

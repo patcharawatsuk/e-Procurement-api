@@ -36,7 +36,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final UserService userService;
     @Override
     public ServiceResult signup(SignUpRequest request) throws AuthenException {
         Optional<User> findUser = userRepository.findByEmail(request.getEmail());

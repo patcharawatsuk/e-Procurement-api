@@ -7,6 +7,7 @@ import eprocurementapi.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,18 +15,28 @@ import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/order")
+@RequestMapping(value = "/api/order", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @PostMapping("/create")
-    public ResponseEntity<ServiceResult> createOrder(@Valid @RequestBody List<OrderRequest> orders) throws UnexpectedException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(orders));
+    @PostMapping(value = "/create")
+    public ResponseEntity<ServiceResult> createOrder(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody List<OrderRequest> order) throws UnexpectedException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(authHeader, order));
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<ServiceResult> getAllOrder(@RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(orderService.getAllOrder(authHeader));
     }
 
     @GetMapping
-    public ResponseEntity<ServiceResult> getOrder() {
-        return ResponseEntity.ok(orderService.getAllOrder());
+    public ResponseEntity<ServiceResult> getOrderDetail(@RequestParam("id") int orderId) throws UnexpectedException {
+        return ResponseEntity.ok(orderService.getOrderDetail(orderId));
     }
+
+//    @GetMapping("/approval")
+//    public ResponseEntity<ServiceResult> getAllApproval(@RequestHeader("Authorization") String authHeader) {
+//        return ResponseEntity.ok(orderService.getAllApproval(authHeader));
+//    }
 }

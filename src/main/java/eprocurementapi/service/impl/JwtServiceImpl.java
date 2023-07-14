@@ -33,7 +33,7 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateAccessToken(UserDetails userDetails) {
-        return generateAccessToken(new HashMap<>(), userDetails, 1);
+        return generateAccessToken(new HashMap<>(), userDetails, 60);
     }
 
     @Override

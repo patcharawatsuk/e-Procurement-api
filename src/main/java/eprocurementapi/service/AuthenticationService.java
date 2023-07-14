@@ -3,6 +3,7 @@ package eprocurementapi.service;
 import eprocurementapi.dao.ServiceResult;
 import eprocurementapi.dao.request.SignUpRequest;
 import eprocurementapi.dao.request.SigninRequest;
+import eprocurementapi.entities.User;
 import eprocurementapi.exception.AuthenException;
 
 public interface AuthenticationService {

@@ -10,4 +10,8 @@ public class UnexpectedException extends BaseException{
     public static UnexpectedException databaseFailHandling(String msg) {
         return new UnexpectedException(HttpStatus.EXPECTATION_FAILED.value(), msg);
     }
+
+    public static UnexpectedException handleCustomError(String msg) {
+        return new UnexpectedException(HttpStatus.EXPECTATION_FAILED.value(), msg);
+    }
 }

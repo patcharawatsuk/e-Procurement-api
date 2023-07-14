@@ -8,7 +8,11 @@ import java.util.List;
 
 public interface OrderService {
 
-    ServiceResult createOrder(List<OrderRequest> orders) throws UnexpectedException;
+    ServiceResult createOrder(String authHeader, List<OrderRequest> order) throws UnexpectedException;
 
-    ServiceResult getAllOrder();
+    ServiceResult getAllOrder(String authHeader);
+
+    ServiceResult getOrderDetail(int orderId) throws UnexpectedException;
+
+//    ServiceResult getAllApproval(String authHeader);
 }
